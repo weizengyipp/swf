@@ -8,9 +8,15 @@ import (
 
 func main() {
 	engine := engine.New()
-	engine.Get("/", indexHandler)
-	engine.Get("/hello", helloHandler)
-	engine.Post("/login", loginHandler)
+
+	engine.GET("/", indexHandler)
+
+	v1 := engine.Group("/v1")
+	v1.GET("/hello", helloHandlerByQuery)
+
+	v2 := engine.Group("/v2")
+	v2.GET("/hello/:name", helloHandlerByParam)
+	v2.POST("/login", loginHandler)
 	engine.Run(":8080")
 }
 
@@ -18,9 +24,12 @@ func indexHandler(c *engine.Context) {
 	c.HTML(http.StatusOK, "<h1>Hello World!</h1>")
 }
 
-// handler echoes r.URL.Header
-func helloHandler(c *engine.Context) {
+func helloHandlerByQuery(c *engine.Context) {
 	c.String(http.StatusOK, "hello %s, you're at %s\n", c.Query("name"), c.Path)
+}
+
+func helloHandlerByParam(c *engine.Context) {
+	c.String(http.StatusOK, "hello %s, you're at %s\n", c.Param("name"), c.Path)
 }
 
 func loginHandler(c *engine.Context) {
