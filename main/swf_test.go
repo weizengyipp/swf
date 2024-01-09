@@ -50,8 +50,22 @@ func TestSWFLogin(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Log(response.StatusCode)
-	t.Log(response.StatusCode)
 	if response.StatusCode != 200 {
+		t.Fatal(response.StatusCode)
+	}
+	body, _ := io.ReadAll(response.Body)
+	t.Log(string(body))
+}
+
+func TestSWF404(t *testing.T) {
+	Posturl := "http://" + host + ":" + port + "/404"
+	payload := url.Values{"username": {"admin"}, "password": {"admin"}}
+	response, err := http.PostForm(Posturl, payload)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Log(response.StatusCode)
+	if response.StatusCode != 404 {
 		t.Fatal(response.StatusCode)
 	}
 	body, _ := io.ReadAll(response.Body)
