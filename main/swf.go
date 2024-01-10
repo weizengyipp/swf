@@ -7,17 +7,18 @@ import (
 )
 
 func main() {
-	engine := engine.New()
+	eng := engine.New()
+	eng.Use(engine.Logger())
+	eng.Use(engine.InteralServerError())
 
-	engine.GET("/", indexHandler)
-
-	v1 := engine.Group("/v1")
+	eng.GET("/", indexHandler)
+	v1 := eng.Group("/v1")
 	v1.GET("/hello", helloHandlerByQuery)
 
-	v2 := engine.Group("/v2")
+	v2 := eng.Group("/v2")
 	v2.GET("/hello/:name", helloHandlerByParam)
 	v2.POST("/login", loginHandler)
-	engine.Run(":8080")
+	eng.Run(":8080")
 }
 
 func indexHandler(c *engine.Context) {

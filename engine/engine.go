@@ -3,6 +3,7 @@ package engine
 import (
 	"log"
 	"net/http"
+	"strings"
 )
 
 // 请求的处理函数，被engine调用
@@ -33,7 +34,7 @@ func New() *Engine {
 func (group *RouterGroup) Group(prefix string) *RouterGroup {
 	engine := group.engine
 	newGroup := &RouterGroup{
-		prefix: prefix,
+		prefix: group.prefix + prefix,
 		parent: group,
 		engine: engine,
 	}
@@ -41,8 +42,21 @@ func (group *RouterGroup) Group(prefix string) *RouterGroup {
 	return newGroup
 }
 
+func (group *RouterGroup) Use(middlewares ...HandlerFunc) {
+	log.Println("Group use middlewares", group.prefix, middlewares)
+	group.middlewares = append(group.middlewares, middlewares...)
+}
+
 func (engine *Engine) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	var middlewares []HandlerFunc
+	for _, group := range engine.groups {
+		if strings.HasPrefix(req.URL.Path, group.prefix) {
+			middlewares = append(middlewares, group.middlewares...)
+		}
+	}
 	c := newContext(w, req)
+	c.handlers = middlewares
+	log.Println("Group use middlewares byurl", middlewares, req.URL.Path)
 	engine.router.handle(c)
 }
 
