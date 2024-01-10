@@ -7,10 +7,7 @@ import (
 )
 
 func main() {
-	eng := engine.New()
-	eng.Use(engine.Logger())
-	eng.Use(engine.InteralServerError())
-
+	eng := engine.Default()
 	eng.GET("/", indexHandler)
 	v1 := eng.Group("/v1")
 	v1.GET("/hello", helloHandlerByQuery)
